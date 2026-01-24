@@ -9,12 +9,12 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
-/* ✅ CITY LIST (CITY + COUNTRY CODE) */
 const popularCities = [
-  // 🇵🇰 Pakistan
+  // Pakistan
+  { name: "Islamabad", country: "PK" },
+  { name: "Hyderabad", country: "PK" },
   { name: "Karachi", country: "PK" },
   { name: "Lahore", country: "PK" },
-  { name: "Islamabad", country: "PK" },
   { name: "Rawalpindi", country: "PK" },
   { name: "Faisalabad", country: "PK" },
   { name: "Multan", country: "PK" },
@@ -23,24 +23,73 @@ const popularCities = [
   { name: "Sialkot", country: "PK" },
   { name: "Gujranwala", country: "PK" },
 
-  // 🇮🇳 India
+  // India
   { name: "Delhi", country: "IN" },
   { name: "Mumbai", country: "IN" },
   { name: "Bengaluru", country: "IN" },
   { name: "Chennai", country: "IN" },
   { name: "Kolkata", country: "IN" },
   { name: "Pune", country: "IN" },
+  { name: "Jaipur", country: "IN" },
+  { name: "Ahmedabad", country: "IN" },
+  { name: "Chandigarh", country: "IN" },
 
-  // 🌍 International
-  { name: "London", country: "GB" },
+  // Turkey
+  { name: "Istanbul", country: "TR" },
+  { name: "Ankara", country: "TR" },
+
+  // Belgium
+  { name: "Brussels", country: "BE" },
+  { name: "Antwerp", country: "BE" },
+  { name: "Ghent", country: "BE" },
+
+  // USA
   { name: "New York", country: "US" },
-  { name: "Paris", country: "FR" },
-  { name: "Tokyo", country: "JP" },
-  { name: "Sydney", country: "AU" },
-  { name: "Dubai", country: "AE" },
+  { name: "Los Angeles", country: "US" },
+  { name: "Chicago", country: "US" },
+  { name: "San Francisco", country: "US" },
+
+  // UK
+  { name: "London", country: "GB" },
+  { name: "Manchester", country: "GB" },
+  { name: "Birmingham", country: "GB" },
+
+  // Canada
   { name: "Toronto", country: "CA" },
+  { name: "Vancouver", country: "CA" },
+  { name: "Montreal", country: "CA" },
+
+  // UAE
+  { name: "Dubai", country: "AE" },
+  { name: "Abu Dhabi", country: "AE" },
+
+  // Japan
+  { name: "Tokyo", country: "JP" },
+  { name: "Osaka", country: "JP" },
+
+  // Australia
+  { name: "Sydney", country: "AU" },
+  { name: "Melbourne", country: "AU" },
+  { name: "Brisbane", country: "AU" },
+
+  // France
+  { name: "Paris", country: "FR" },
+  { name: "Lyon", country: "FR" },
+
+  // Germany
   { name: "Berlin", country: "DE" },
+  { name: "Munich", country: "DE" },
+  { name: "Frankfurt", country: "DE" },
+
+  // Italy
+  { name: "Rome", country: "IT" },
+  { name: "Milan", country: "IT" },
+
+  // Spain
+  { name: "Madrid", country: "ES" },
+  { name: "Barcelona", country: "ES" },
 ];
+
 
 const App = () => {
   const apiKey = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
@@ -49,7 +98,7 @@ const App = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
 
-  /* 🔍 SEARCH INPUT */
+  /* SEARCH INPUT */
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setCity(value);
@@ -68,7 +117,7 @@ const App = () => {
     setSuggestions(matches);
   };
 
-  /* 🌦️ FETCH WEATHER */
+  /* FETCH WEATHER */
   const getWeatherData = async (cityObj = null) => {
     const selected =
       cityObj ||
@@ -107,7 +156,7 @@ const App = () => {
     getWeatherData(cityObj);
   };
 
-  /* 🌤️ ICON SELECTOR */
+  /* ICON SELECTOR */
   const getWeatherIcon = (main) => {
     switch (main) {
       case "Clear":
@@ -125,9 +174,9 @@ const App = () => {
     }
   };
 
-  /* 🔄 DEFAULT CITY */
+  /* DEFAULT CITY */
   useEffect(() => {
-    getWeatherData({ name: "Karachi", country: "PK" });
+    getWeatherData({ name: "Islamabad", country: "PK" });
   }, []);
 
   return (
@@ -200,7 +249,7 @@ const App = () => {
   );
 };
 
-/* 📦 INFO BOX */
+/* INFO BOX */
 const WeatherBox = ({ icon, title, value }) => (
   <div className="bg-white/10 rounded-xl p-4 text-center space-y-2">
     <div className="flex justify-center">{icon}</div>
