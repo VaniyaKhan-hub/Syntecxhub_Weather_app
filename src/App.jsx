@@ -11,33 +11,16 @@ import React, { useEffect, useState } from 'react';
 
 
 const popularCities = [
-
-  "Agra", "Ahmedabad", "Allahabad", "Amritsar", "Argentina",
-  "Austria", "Auckland", "Bangkok", "Barcelona", "Belgium",
-  "Berlin", "Bengaluru", "Bhopal", "Brisbane", "Brazil",
-  "Budapest", "Cairo", "Chandigarh", "Chennai", "Chicago",
-  "Chile", "China", "Coimbatore", "Colombia", "Croatia",
-  "Cuba", "Dehradun", "Delhi", "Denmark", "Dubai",
-  "Dublin", "Egypt", "Faridabad", "France", "Germany",
-  "Greece", "Guwahati", "Gwalior", "Helsinki", "Hyderabad",
-  "Indore", "Indonesia", "Ireland", "Istanbul", "Italy",
-  "Jaipur", "Jamshedpur", "Japan", "Jodhpur", "Kanpur",
-  "Kenya", "Kolkata", "Lisbon", "London", "Los Angeles",
-  "Lucknow", "Ludhiana", "Madurai", "Malaysia", "Mangalore",
-  "Madrid", "Melbourne", "Meerut", "Mexico", "Moscow",
-  "Mumbai", "Mysuru", "Nagpur", "Nashik", "Netherlands",
-  "New York", "Nigeria", "Noida", "Norway", "Paris",
-  "Patna", "Peru", "Philippines", "Portugal", "Prague",
-  "Pune","Pakistan", "Raipur", "Rajkot", "Ranchi", "Rome",
-  "Russia", "Saudi Arabia", "Scotland", "Seoul", "Shimla",
-  "Singapore", "Slovakia", "Slovenia", "South Africa",
-  "South Korea", "Spain", "Surat", "Sweden", "Switzerland",
-  "Sydney", "Thailand", "Thiruvananthapuram", "Tokyo",
-  "Toronto", "Turkey", "UAE", "Udaipur",
-  "Vancouver", "Varanasi", "Venezuela", "Vienna",
-  "Vietnam", "Visakhapatnam", "Warsaw", "Wales",
-  "Vienna", "Zürich"
+  "Agra", "Ahmedabad", "Allahabad", "Amritsar", "Auckland", "Bangkok", "Barcelona", "Berlin", "Bengaluru",
+  "Bhopal", "Brisbane", "Budapest", "Cairo", "Chandigarh", "Chennai", "Chicago", "Coimbatore", "Dehradun",
+  "Delhi", "Dubai", "Dublin", "Faridabad", "Guwahati", "Gwalior", "Helsinki", "Hyderabad", "Indore",
+  "Istanbul", "Jaipur", "Jamshedpur", "Jodhpur", "Kanpur", "Kolkata", "Lisbon", "London", "Los Angeles",
+  "Lucknow", "Ludhiana", "Madurai", "Mangalore", "Madrid", "Melbourne", "Meerut", "Moscow", "Mumbai",
+  "Mysuru", "Nagpur", "Nashik", "New York", "Noida", "Paris", "Patna", "Prague", "Pune", "Raipur","Rajkot",
+  "Ranchi", "Rome", "Seoul", "Shimla", "Singapore", "Surat", "Sydney", "Thiruvananthapuram", "Tokyo",
+  "Toronto", "Udaipur", "Vancouver", "Varanasi", "Vienna", "Visakhapatnam", "Warsaw", "Zurich"
 ];
+
 
 const App = () => {
   const apiKey = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
@@ -60,27 +43,69 @@ const App = () => {
     }
   };
 
+
   const getWeatherData = async (cityName = city) => {
     const selectedCity = popularCities.find(
       (c) => c.toLowerCase() === cityName.toLowerCase()
     );
+
     if (!selectedCity) {
-      alert('Please select a valid city from suggestions.');
+      alert("Please select a valid city from suggestions.");
       return;
     }
 
     try {
-      const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?q=${selectedCity}&appid=${apiKey}`
+      // 1️⃣ Get coordinates using Geocoding API
+      const geoResponse = await axios.get(
+        "https://api.openweathermap.org/geo/1.0/direct",
+        {
+          params: {
+            q: selectedCity,
+            limit: 1,
+            appid: apiKey,
+          },
+        }
       );
-      setWeatherData(response.data);
-      console.log(response.data)
-      setCity('');
+
+      if (!geoResponse.data.length) {
+        alert("Location not found.");
+        return;
+      }
+
+      const geoData = geoResponse.data[0];
+
+      // ✅ VALIDATE HERE (correct place)
+      if (
+        geoData.name.toLowerCase() !== selectedCity.toLowerCase() &&
+        geoData.country
+      ) {
+        alert("Please search for a city, not a country.");
+        return;
+      }
+
+      const { lat, lon } = geoData;
+
+      // 2️⃣ Fetch weather using lat & lon
+      const weatherResponse = await axios.get(
+        "https://api.openweathermap.org/data/2.5/weather",
+        {
+          params: {
+            lat,
+            lon,
+            appid: apiKey,
+          },
+        }
+      );
+
+      setWeatherData(weatherResponse.data);
+      setCity("");
       setSuggestions([]);
     } catch (error) {
-      console.error('Error fetching weather data:', error);
+      console.error("Error fetching weather data:", error);
+      alert("Failed to fetch weather data.");
     }
   };
+
 
   const handleSuggestionClick = (suggestion) => {
     setCity(suggestion);
