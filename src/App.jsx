@@ -10,7 +10,7 @@ import {
 import React, { useEffect, useState } from "react";
 
 const popularCities = [
-  // 🇵🇰 Pakistan
+  // Pakistan
   { name: "Islamabad", country: "PK" },
   { name: "Hyderabad", country: "PK" },
   { name: "Karachi", country: "PK" },
@@ -23,7 +23,7 @@ const popularCities = [
   { name: "Sialkot", country: "PK" },
   { name: "Gujranwala", country: "PK" },
 
-  // 🇮🇳 India
+  // India
   { name: "Delhi", country: "IN" },
   { name: "Mumbai", country: "IN" },
   { name: "Bengaluru", country: "IN" },
@@ -34,58 +34,58 @@ const popularCities = [
   { name: "Ahmedabad", country: "IN" },
   { name: "Chandigarh", country: "IN" },
 
-  // 🇹🇷 Turkey
+  // Turkey
   { name: "Istanbul", country: "TR" },
   { name: "Ankara", country: "TR" },
 
-  // 🇧🇪 Belgium
+  // Belgium
   { name: "Brussels", country: "BE" },
   { name: "Antwerp", country: "BE" },
   { name: "Ghent", country: "BE" },
 
-  // 🇺🇸 USA
+  // USA
   { name: "New York", country: "US" },
   { name: "Los Angeles", country: "US" },
   { name: "Chicago", country: "US" },
   { name: "San Francisco", country: "US" },
 
-  // 🇬🇧 UK
+  // UK
   { name: "London", country: "GB" },
   { name: "Manchester", country: "GB" },
   { name: "Birmingham", country: "GB" },
 
-  // 🇨🇦 Canada
+  // Canada
   { name: "Toronto", country: "CA" },
   { name: "Vancouver", country: "CA" },
   { name: "Montreal", country: "CA" },
 
-  // 🇦🇪 UAE
+  // UAE
   { name: "Dubai", country: "AE" },
   { name: "Abu Dhabi", country: "AE" },
 
-  // 🇯🇵 Japan
+  // Japan
   { name: "Tokyo", country: "JP" },
   { name: "Osaka", country: "JP" },
 
-  // 🇦🇺 Australia
+  // Australia
   { name: "Sydney", country: "AU" },
   { name: "Melbourne", country: "AU" },
   { name: "Brisbane", country: "AU" },
 
-  // 🇫🇷 France
+  // France
   { name: "Paris", country: "FR" },
   { name: "Lyon", country: "FR" },
 
-  // 🇩🇪 Germany
+  // Germany
   { name: "Berlin", country: "DE" },
   { name: "Munich", country: "DE" },
   { name: "Frankfurt", country: "DE" },
 
-  // 🇮🇹 Italy
+  // Italy
   { name: "Rome", country: "IT" },
   { name: "Milan", country: "IT" },
 
-  // 🇪🇸 Spain
+  // Spain
   { name: "Madrid", country: "ES" },
   { name: "Barcelona", country: "ES" },
 ];
@@ -250,12 +250,18 @@ const App = () => {
 };
 
 /* INFO BOX */
-const WeatherBox = ({ icon, title, value }) => (
-  <div className="bg-white/10 rounded-xl p-4 text-center space-y-2">
-    <div className="flex justify-center">{icon}</div>
-    <h3 className="font-semibold">{title}</h3>
-    <p className="font-bold">{value}</p>
-  </div>
-);
-
+// const WeatherBox = ({ icon, title, value }) => (
+//   <div className="bg-white/10 rounded-xl p-4 text-center space-y-2">
+//     <div className="flex justify-center">{icon}</div>
+//     <h3 className="font-semibold">{title}</h3>
+//     <p className="font-bold">{value}</p>
+//   </div>
+// );
+const WeatherBox = ({ icon, title, value }) => {
+   return (
+   <div className="backdrop-blur-sm rounded-2xl p-4 shadow-xl flex flex-col items-center space-y-2 border border-white/20 hover:scale-105 transition-transform">
+     <div className="text-white">{icon}</div>
+      <h3 className="text-lg font-semibold">{title}</h3> 
+      <p className="text-xl font-bold">{value}</p>
+       </div>); };
 export default App;
