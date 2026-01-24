@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 import {
   Droplet,
   GlassWater,
@@ -6,172 +6,162 @@ import {
   Wind,
   CloudRain,
   Search,
-} from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
 
-
+/* ✅ CITY LIST (CITY + COUNTRY CODE) */
 const popularCities = [
-  "Agra", "Ahmedabad", "Allahabad", "Amritsar", "Auckland", "Bangkok", "Barcelona", "Berlin", "Bengaluru",
-  "Bhopal", "Brisbane", "Budapest", "Cairo", "Chandigarh", "Chennai", "Chicago", "Coimbatore", "Dehradun",
-  "Delhi", "Dubai", "Dublin", "Faridabad", "Guwahati", "Gwalior", "Helsinki", "Hyderabad", "Indore",
-  "Istanbul", "Jaipur", "Jamshedpur", "Jodhpur", "Kanpur", "Kolkata", "Lisbon", "London", "Los Angeles",
-  "Lucknow", "Ludhiana", "Madurai", "Mangalore", "Madrid", "Melbourne", "Meerut", "Moscow", "Mumbai",
-  "Mysuru", "Nagpur", "Nashik", "New York", "Noida", "Paris", "Patna", "Prague", "Pune", "Raipur","Rajkot",
-  "Ranchi", "Rome", "Seoul", "Shimla", "Singapore", "Surat", "Sydney", "Thiruvananthapuram", "Tokyo",
-  "Toronto", "Udaipur", "Vancouver", "Varanasi", "Vienna", "Visakhapatnam", "Warsaw", "Zurich"
-];
+  // 🇵🇰 Pakistan
+  { name: "Karachi", country: "PK" },
+  { name: "Lahore", country: "PK" },
+  { name: "Islamabad", country: "PK" },
+  { name: "Rawalpindi", country: "PK" },
+  { name: "Faisalabad", country: "PK" },
+  { name: "Multan", country: "PK" },
+  { name: "Peshawar", country: "PK" },
+  { name: "Quetta", country: "PK" },
+  { name: "Sialkot", country: "PK" },
+  { name: "Gujranwala", country: "PK" },
 
+  // 🇮🇳 India
+  { name: "Delhi", country: "IN" },
+  { name: "Mumbai", country: "IN" },
+  { name: "Bengaluru", country: "IN" },
+  { name: "Chennai", country: "IN" },
+  { name: "Kolkata", country: "IN" },
+  { name: "Pune", country: "IN" },
+
+  // 🌍 International
+  { name: "London", country: "GB" },
+  { name: "New York", country: "US" },
+  { name: "Paris", country: "FR" },
+  { name: "Tokyo", country: "JP" },
+  { name: "Sydney", country: "AU" },
+  { name: "Dubai", country: "AE" },
+  { name: "Toronto", country: "CA" },
+  { name: "Berlin", country: "DE" },
+];
 
 const App = () => {
   const apiKey = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
 
-  const [city, setCity] = useState('');
+  const [city, setCity] = useState("");
   const [weatherData, setWeatherData] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
 
+  /* 🔍 SEARCH INPUT */
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setCity(value);
 
-    if (value.length > 0) {
-      const matches = popularCities.filter((c) =>
-        c.toLowerCase().startsWith(value.toLowerCase())
-      ).slice(0, 8);
-      setSuggestions(matches);
-    } else {
+    if (!value) {
       setSuggestions([]);
+      return;
     }
+
+    const matches = popularCities
+      .filter((c) =>
+        c.name.toLowerCase().startsWith(value.toLowerCase())
+      )
+      .slice(0, 8);
+
+    setSuggestions(matches);
   };
 
+  /* 🌦️ FETCH WEATHER */
+  const getWeatherData = async (cityObj = null) => {
+    const selected =
+      cityObj ||
+      popularCities.find(
+        (c) => c.name.toLowerCase() === city.toLowerCase()
+      );
 
-  const getWeatherData = async (cityName = city) => {
-    const selectedCity = popularCities.find(
-      (c) => c.toLowerCase() === cityName.toLowerCase()
-    );
-
-    if (!selectedCity) {
-      alert("Please select a valid city from suggestions.");
+    if (!selected) {
+      alert("Please select a city from suggestions.");
       return;
     }
 
     try {
-      // 1️⃣ Get coordinates using Geocoding API
-      const geoResponse = await axios.get(
-        "https://api.openweathermap.org/geo/1.0/direct",
-        {
-          params: {
-            q: selectedCity,
-            limit: 1,
-            appid: apiKey,
-          },
-        }
-      );
-
-      if (!geoResponse.data.length) {
-        alert("Location not found.");
-        return;
-      }
-
-      const geoData = geoResponse.data[0];
-
-      // ✅ VALIDATE HERE (correct place)
-      if (
-        geoData.name.toLowerCase() !== selectedCity.toLowerCase() &&
-        geoData.country
-      ) {
-        alert("Please search for a city, not a country.");
-        return;
-      }
-
-      const { lat, lon } = geoData;
-
-      // 2️⃣ Fetch weather using lat & lon
-      const weatherResponse = await axios.get(
+      const response = await axios.get(
         "https://api.openweathermap.org/data/2.5/weather",
         {
           params: {
-            lat,
-            lon,
+            q: `${selected.name},${selected.country}`,
             appid: apiKey,
+            units: "metric", // Celsius
           },
         }
       );
 
-      setWeatherData(weatherResponse.data);
+      setWeatherData(response.data);
       setCity("");
       setSuggestions([]);
     } catch (error) {
-      console.error("Error fetching weather data:", error);
-      alert("Failed to fetch weather data.");
+      console.error(error);
+      alert("Weather data not found.");
     }
   };
 
-
-  const handleSuggestionClick = (suggestion) => {
-    setCity(suggestion);
-    getWeatherData(suggestion);
+  const handleSuggestionClick = (cityObj) => {
+    setCity(cityObj.name);
+    getWeatherData(cityObj);
   };
 
-  // Icon selector based on weather
+  /* 🌤️ ICON SELECTOR */
   const getWeatherIcon = (main) => {
     switch (main) {
       case "Clear":
-        return <Sun size={80} strokeWidth={1.5} />;
+        return <Sun size={80} />;
       case "Clouds":
-        return <CloudRain size={80} strokeWidth={1.5} />;
       case "Rain":
       case "Drizzle":
-        return <CloudRain size={80} strokeWidth={1.5} />;
-      case "Snow":
-        return <CloudRain className="rotate-45" size={80} strokeWidth={1.5} />;
       case "Thunderstorm":
-        return <CloudRain className="animate-pulse" size={80} strokeWidth={1.5} />;
+        return <CloudRain size={80} />;
       case "Mist":
       case "Fog":
-        return <Wind size={80} strokeWidth={1.5} />;
+        return <Wind size={80} />;
       default:
-        return <CloudRain size={80} strokeWidth={1.5} />;
+        return <CloudRain size={80} />;
     }
   };
 
+  /* 🔄 DEFAULT CITY */
   useEffect(() => {
-    getWeatherData("Mumbai");
+    getWeatherData({ name: "Karachi", country: "PK" });
   }, []);
 
   return (
-    <div className="relative flex justify-center items-center px-4 min-h-screen bg-weather-gradient">
-      <div className="max-w-5xl w-full shadow-2xl p-8 bg-weather-gradient backdrop-blur-sm rounded-2xl space-y-6 border border-white/20">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 relative">
-          <h1 className="font-bold text-4xl text-white tracking-wide">GlobeWeather</h1>
-          <div className="w-full md:w-auto relative">
-            <div className="flex items-center space-x-3">
+    <div className="min-h-screen flex justify-center items-center bg-weather-gradient px-4">
+      <div className="max-w-4xl w-full bg-white/10 backdrop-blur-md p-8 rounded-2xl space-y-6">
+
+        {/* HEADER */}
+        <div className="flex flex-col md:flex-row justify-between gap-4">
+          <h1 className="text-4xl font-bold text-white">GlobeWeather</h1>
+
+          <div className="relative w-full md:w-80">
+            <div className="flex items-center gap-2">
               <input
                 type="text"
-                placeholder="Enter a city"
                 value={city}
                 onChange={handleSearchChange}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    getWeatherData();
-                  }
-                }}
-                className="px-4 py-2 w-full bg-white/20 placeholder-white text-white border border-white rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-300"
+                onKeyDown={(e) => e.key === "Enter" && getWeatherData()}
+                placeholder="Search city"
+                className="w-full px-4 py-2 rounded-xl bg-white/20 text-white placeholder-white outline-none"
               />
-              <button className="p-3" onClick={() => getWeatherData()}>
-                <Search size={28} className="text-white" />
+              <button onClick={() => getWeatherData()}>
+                <Search className="text-white" />
               </button>
             </div>
-            {/* Suggestions Dropdown */}
+
             {suggestions.length > 0 && (
-              <ul className="absolute z-10 w-full bg-white text-black mt-2 rounded-xl overflow-hidden shadow-md max-h-48 overflow-y-auto">
-                {suggestions.map((s, index) => (
+              <ul className="absolute z-10 w-full bg-white rounded-xl mt-2 shadow-lg">
+                {suggestions.map((s, i) => (
                   <li
-                    key={index}
+                    key={i}
                     onClick={() => handleSuggestionClick(s)}
                     className="px-4 py-2 hover:bg-purple-100 cursor-pointer"
                   >
-                    {s}
+                    {s.name}, {s.country}
                   </li>
                 ))}
               </ul>
@@ -179,38 +169,29 @@ const App = () => {
           </div>
         </div>
 
-        {/* Weather Display */}
+        {/* WEATHER */}
         {weatherData && (
           <>
-            {/* Temperature Section */}
-            <div className="flex flex-col md:flex-row justify-between items-center bg-weather-gradient backdrop-blur-sm rounded-xl p-6 shadow-xl space-y-4 md:space-y-0">
-              <div className="space-y-2 text-center md:text-left">
-                <div className="flex items-start justify-center md:justify-start space-x-2">
-                  <h2 className="text-7xl md:text-8xl text-white font-bold">
-                    {Math.round(weatherData.main.temp - 273.15)}
-                  </h2>
-                  <span className="text-3xl md:text-5xl text-white">°C</span>
-                </div>
-                <h3 className="text-white text-xl md:text-2xl font-medium">{`${weatherData.name} , ${weatherData.sys.country}`}</h3>
-                <h4 className="text-white text-lg md:text-xl capitalize">
+            <div className="flex flex-col md:flex-row justify-between items-center bg-white/10 rounded-xl p-6">
+              <div className="text-white space-y-2">
+                <h2 className="text-7xl font-bold">
+                  {Math.round(weatherData.main.temp)}°C
+                </h2>
+                <h3 className="text-xl">
+                  {weatherData.name}, {weatherData.sys.country}
+                </h3>
+                <p className="capitalize">
                   {weatherData.weather[0].description}
-                </h4>
+                </p>
               </div>
-              <div className="text-white">
-                {getWeatherIcon(weatherData.weather[0].main)}
-              </div>
+              {getWeatherIcon(weatherData.weather[0].main)}
             </div>
 
-            {/* Info Boxes */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-white">
-              <WeatherBox icon={<Droplet size={32} />} title="Humidity" value={`${weatherData.main.humidity}%`} />
-              <WeatherBox icon={<GlassWater size={32} />} title="Pressure" value={`${weatherData.main.pressure} hPa`} />
-              <WeatherBox icon={<Wind size={32} />} title="Wind Speed" value={`${weatherData.wind.speed} km/h`} />
-              <WeatherBox
-                icon={<Sun size={32} />}
-                title="Feels Like"
-                value={`${Math.round(weatherData.main.feels_like - 273.15)} °C`}
-              />
+              <WeatherBox icon={<Droplet />} title="Humidity" value={`${weatherData.main.humidity}%`} />
+              <WeatherBox icon={<GlassWater />} title="Pressure" value={`${weatherData.main.pressure} hPa`} />
+              <WeatherBox icon={<Wind />} title="Wind" value={`${weatherData.wind.speed} m/s`} />
+              <WeatherBox icon={<Sun />} title="Feels Like" value={`${Math.round(weatherData.main.feels_like)}°C`} />
             </div>
           </>
         )}
@@ -219,14 +200,13 @@ const App = () => {
   );
 };
 
-const WeatherBox = ({ icon, title, value }) => {
-  return (
-    <div className="backdrop-blur-sm rounded-2xl p-4 shadow-xl flex flex-col items-center space-y-2 border border-white/20 hover:scale-105 transition-transform">
-      <div className="text-white">{icon}</div>
-      <h3 className="text-lg font-semibold">{title}</h3>
-      <p className="text-xl font-bold">{value}</p>
-    </div>
-  );
-};
+/* 📦 INFO BOX */
+const WeatherBox = ({ icon, title, value }) => (
+  <div className="bg-white/10 rounded-xl p-4 text-center space-y-2">
+    <div className="flex justify-center">{icon}</div>
+    <h3 className="font-semibold">{title}</h3>
+    <p className="font-bold">{value}</p>
+  </div>
+);
 
 export default App;
